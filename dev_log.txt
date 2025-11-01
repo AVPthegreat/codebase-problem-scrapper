@@ -54,3 +54,24 @@
 [2025-11-01 01:02] Writing initial pytest covering OutputWriter placeholder flow.
 [2025-11-01 01:03] Added tests/test_output_writer.py verifying metadata and testcase file emission.
 [2025-11-01 01:04] Sprint 1 baselines (scaffold, CLI, API stub, output writer, settings, test) in place pending dependency install.
+[2025-11-01 01:05] Preparing TODO list capturing upcoming implementation tasks.
+[2025-11-01 01:06] Created TODO.md outlining immediate next steps, Sprint 1 tasks, and future features.
+[2025-11-01 01:07] Removed TODO.md per instruction; migrating action items into dev_log TODO section.
+[2025-11-01 01:08] TODO:
+	- (done) Create and activate Python 3.11+ virtual environment.
+	- (done) Install dependencies via `pip install -e .[dev]`.
+	- (done) Run `pytest` to validate scaffold.
+	- Extend ProblemGenerator to use configuration for deterministic workflows.
+	- Add CLI option for custom output directory from settings.
+	- Implement FastAPI integration test for placeholder endpoint.
+	- Plan Sprint 2 features: AI enhancer stub, deterministic RNG module, ZIP exporter.
+[2025-11-01 01:09] Initiating Python virtual environment creation (.venv).
+[2025-11-01 01:10] Created virtual environment at .venv/.
+[2025-11-01 01:11] Installing project dependencies using .venv/bin/pip install -e .[dev].
+[2025-11-01 01:12] Initial install attempt failed due to shell globbing; retrying with quoted extras specifier.
+[2025-11-01 01:13] Installed project dependencies inside .venv using editable mode with dev extras.
+[2025-11-01 01:14] Running pytest suite to verify scaffold.
+[2025-11-01 01:15] Pytest failed: ModuleNotFoundError for package 'tcg'; need to expose src/ on PYTHONPATH.
+[2025-11-01 01:16] Updated pyproject.toml with pytest pythonpath=src to resolve import errors.
+[2025-11-01 01:17] Re-running pytest after configuration update.
+[2025-11-01 01:18] Pytest succeeded (1 test); noted pytest collection warning for TestcaseSpec naming.
