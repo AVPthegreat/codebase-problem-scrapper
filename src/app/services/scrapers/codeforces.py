@@ -59,7 +59,7 @@ class CodeforcesScraper(Scraper):
         if limit <= 0:
             return ScraperResult(site=self.site_name, problems=[])
 
-    topics = [_TOPIC_MAP.get(topic, topic) for topic in query.topics]
+        topics = [_TOPIC_MAP.get(topic, topic) for topic in query.topics]
         candidates = self._load_candidates(topics, query.difficulty)
 
         collected: List[ScrapedProblem] = []
@@ -171,16 +171,12 @@ class CodeforcesScraper(Scraper):
 
     def _render_statement(self, info: _ProblemInfo, node: Tag) -> Tuple[str, Optional[str]]:
         title_node = node.select_one(".header .title")
-        header_title = None
+        display_title = info.name
         if title_node:
             header_title = title_node.get_text(strip=True)
             if header_title:
-                parts = header_title.split(". ", 1)
-                display_title = parts[1] if len(parts) > 1 else header_title
-            else:
-                display_title = info.name
-        else:
-            display_title = info.name
+                split_parts = header_title.split(". ", 1)
+                display_title = split_parts[1] if len(split_parts) > 1 else header_title
 
         time_limit = self._extract_limit(node, ".time-limit", "time limit per test")
         memory_limit = self._extract_limit(node, ".memory-limit", "memory limit per test")
@@ -193,7 +189,7 @@ class CodeforcesScraper(Scraper):
         if time_limit or memory_limit:
             lines.append("")
 
-        legend = node.select_one(".legend")
+        legend = self._statement_body(node)
         if legend:
             lines.append("## Statement")
             lines.append("")
@@ -214,7 +210,7 @@ class CodeforcesScraper(Scraper):
             lines.append("")
 
         markdown = "\n".join(line.rstrip() for line in lines if line is not None)
-        return markdown.strip() + "\n", (parts[1] if title_node and header_title and len(parts) > 1 else display_title)
+        return markdown.strip() + "\n", display_title
 
     def _extract_samples(self, node: BeautifulSoup) -> List[Testcase]:
         samples: List[Testcase] = []
@@ -252,3 +248,19 @@ class CodeforcesScraper(Scraper):
             return None
         text = element.get_text(" ", strip=True)
         return text.replace(prefix, "").strip()
+
+    def _statement_body(self, node: Tag) -> Optional[Tag]:
+        legend = node.select_one(".legend")
+        if legend:
+            return legend
+
+        for child in node.find_all(recursive=False):
+            child_classes = set(child.get("class", []))
+            if not child_classes:
+                if child.name in {"div", "p"}:
+                    return child
+                continue
+            if {"header", "input-specification", "output-specification", "sample-test", "note"} & child_classes:
+                continue
+            return child
+        return None

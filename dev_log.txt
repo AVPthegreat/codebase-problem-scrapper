@@ -129,3 +129,11 @@
 [2025-11-01 01:41] Added tests/test_orchestrator.py smoke test verifying ZIP contents.
 [2025-11-01 01:42] Re-running pytest after adding smoke test.
 [2025-11-01 01:43] Pytest succeeded (1 test) after addressing UTC timestamp warning.
+[2025-11-02 09:30] Expanded Codeforces scraper to render structured statements, extract limits, cache metadata, and expose direct fetch helper.
+[2025-11-02 09:35] Added live integration test targeting Codeforces 4A "Watermelon" to assert title, statement, and sample parity, skipping on network issues.
+[2025-11-02 11:00] Implemented LeetCode scraper with GraphQL integration, CSRF negotiation, statement rendering, and metadata-driven sample extraction.
+[2025-11-02 11:05] Added LeetCode Two Sum live test covering statement output and example parsing, with graceful skip when service unavailable.
+[2025-11-02 12:20] Implemented CodeChef scraper via public practice APIs, rendering statements and extracting structured sample cases.
+[2025-11-02 12:25] Implemented GeeksforGeeks scraper using Next.js payloads with curated bank, HTML normalisation, and sample parsing.
+[2025-11-02 12:30] Implemented AtCoder scraper leveraging archive parsing and English statements, including sample pairing by index.
+[2025-11-02 12:35] Added live integration tests for CodeChef FLOW001, GFG value-equal-to-index, and AtCoder ABC086A.

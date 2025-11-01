@@ -33,7 +33,10 @@ class ScrapeWorker(QObject):
         super().__init__()
         self._prompt = prompt
         self._output_dir = output_dir
-    self._orchestrator = ScrapeOrchestrator(base_output=output_dir)
+        if output_dir is not None:
+            self._orchestrator = ScrapeOrchestrator(base_output=output_dir)
+        else:
+            self._orchestrator = ScrapeOrchestrator()
 
     @Slot()
     def run(self) -> None:
