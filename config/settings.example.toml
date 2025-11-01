@@ -1,0 +1,37 @@
+# Copy this file to config/settings.toml and adjust values for your environment.
+
+[app]
+project_name = "Test Case Generator"
+environment = "development"
+default_seed = 424242
+output_dir = "output"
+ai_provider = "openai"
+enable_local_llm = false
+
+[security]
+jwt_secret_key = "change-this-secret"
+jwt_algorithm = "HS256"
+access_token_expire_minutes = 60
+
+[ai.openai]
+api_key = "sk-..."
+model = "gpt-4.1-mini"
+
+[ai.local]
+# Path to optional local model endpoint; leave blank to disable.
+endpoint = ""
+auth_token = ""
+
+[scraper]
+rate_limit_per_minute = 30
+cache_dir = "cache"
+user_agent = "tcg-bot/0.1"
+
+[executor]
+max_cpu_time_sec = 2.0
+max_memory_mb = 256
+sandbox = "none"  # update to "docker" when sandboxing becomes available
+
+[logging]
+level = "INFO"
+file = "logs/app.log"

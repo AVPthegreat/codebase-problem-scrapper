@@ -1,0 +1,56 @@
+[2025-11-01 00:00] Created dev_log.txt to record all actions taken during the project.
+[2025-11-01 00:05] Received go-ahead to begin implementation; preparing initial project scaffolding tasks.
+[2025-11-01 00:10] Beginning Sprint 1 scaffolding: repository structure, configuration, and core modules.
+[2025-11-01 00:12] Planning to add base project files: .gitignore, README.md, pyproject.toml, and core source directories.
+[2025-11-01 00:13] Created src/ directory to house Python packages.
+[2025-11-01 00:14] Added src/core/ for shared domain logic.
+[2025-11-01 00:15] Added src/cli/ for command-line interface implementation.
+[2025-11-01 00:16] Added src/api/ for FastAPI server modules.
+[2025-11-01 00:17] Added src/services/ for orchestrating generation workflows.
+[2025-11-01 00:18] Added src/models/ for data schemas and metadata representations.
+[2025-11-01 00:19] Added src/utils/ for shared helper utilities.
+[2025-11-01 00:20] Created tests/ directory for unit and integration suites.
+[2025-11-01 00:21] Preparing to add .gitignore with Python, FastAPI, and build artifacts exclusions.
+[2025-11-01 00:22] Created .gitignore covering Python caches, venvs, IDE configs, output/, and temp files.
+[2025-11-01 00:23] Drafting README.md with project overview, architecture summary, and quickstart.
+[2025-11-01 00:24] Created README.md detailing MVP scope, architecture, setup steps, and roadmap.
+[2025-11-01 00:25] Realigning package layout: introducing src/tcg/ namespace and migrating subpackages under it.
+[2025-11-01 00:26] Created src/tcg/ root package directory.
+[2025-11-01 00:27] Added src/tcg/api/ for FastAPI endpoints.
+[2025-11-01 00:28] Added src/tcg/cli/ for Typer-based CLI commands.
+[2025-11-01 00:29] Added src/tcg/core/ for domain services and workflow orchestration.
+[2025-11-01 00:30] Added src/tcg/services/ for adapters (AI, storage, execution).
+[2025-11-01 00:31] Added src/tcg/models/ for Pydantic schemas and enums.
+[2025-11-01 00:32] Added src/tcg/utils/ for common helper functions.
+[2025-11-01 00:33] Generating __init__.py files for new packages.
+[2025-11-01 00:34] Added src/tcg/__init__.py with package metadata stub.
+[2025-11-01 00:35] Added src/tcg/api/__init__.py describing API package.
+[2025-11-01 00:36] Added src/tcg/cli/__init__.py placeholder.
+[2025-11-01 00:37] Added src/tcg/core/__init__.py placeholder.
+[2025-11-01 00:38] Added src/tcg/services/__init__.py placeholder.
+[2025-11-01 00:39] Added src/tcg/models/__init__.py placeholder.
+[2025-11-01 00:40] Added src/tcg/utils/__init__.py placeholder.
+[2025-11-01 00:41] Removing now-redundant top-level src/* directories after migration.
+[2025-11-01 00:42] Deleted legacy src/api, src/cli, src/core, src/models, src/services, src/utils directories.
+[2025-11-01 00:43] Writing pyproject.toml with setuptools build backend, core dependencies, and dev extras.
+[2025-11-01 00:44] Added pyproject.toml defining project metadata, dependencies, and CLI entry point.
+[2025-11-01 00:45] Preparing configuration template under config/ for environment defaults.
+[2025-11-01 00:46] Created config/ directory for application settings templates.
+[2025-11-01 00:47] Added config/settings.example.toml capturing app, AI, scraper, executor, and logging defaults.
+[2025-11-01 00:48] Defining Pydantic models for metadata.json and problem descriptors.
+[2025-11-01 00:49] Added src/tcg/models/problem.py with Difficulty enum, metadata schema, and bundle structures.
+[2025-11-01 00:50] Implementing local output writer service to emit problem folders and artefacts.
+[2025-11-01 00:51] Added src/tcg/services/output_writer.py with OutputWriter for metadata, statement, testcase files.
+[2025-11-01 00:52] Creating baseline ProblemGenerator in src/tcg/core/ to drive CLI/API workflows.
+[2025-11-01 00:53] Added src/tcg/core/generator.py with placeholder generation routine writing artefacts via OutputWriter.
+[2025-11-01 00:54] Implementing Typer CLI entrypoint with generate command.
+[2025-11-01 00:55] Added src/tcg/cli/main.py with Typer CLI for placeholder bundle generation.
+[2025-11-01 00:56] Implementing settings loader utility for config/settings.toml.
+[2025-11-01 00:57] Added src/tcg/utils/settings.py with Settings model and env-aware loader.
+[2025-11-01 00:58] Adding minimal JWT helper for API authentication workflows.
+[2025-11-01 00:59] Added src/tcg/utils/security.py with JWTManager and UserClaims dataclass.
+[2025-11-01 01:00] Building FastAPI app scaffold with auth and placeholder generation endpoint.
+[2025-11-01 01:01] Added src/tcg/api/main.py exposing health, token, and placeholder problem endpoints with JWT auth.
+[2025-11-01 01:02] Writing initial pytest covering OutputWriter placeholder flow.
+[2025-11-01 01:03] Added tests/test_output_writer.py verifying metadata and testcase file emission.
+[2025-11-01 01:04] Sprint 1 baselines (scaffold, CLI, API stub, output writer, settings, test) in place pending dependency install.
