@@ -3,37 +3,34 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tcg"
+name = "tcg-desktop"
 version = "0.1.0"
-description = "Test case generation platform for Codebase Online Judge"
+description = "Desktop tool for scraping coding problems and packaging testcases"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [{ name = "Test Case Generator Team" }]
 dependencies = [
-    "fastapi>=0.110,<0.120",
-    "uvicorn[standard]>=0.24,<0.29",
-    "typer>=0.12,<0.15",
-    "pydantic>=2.6,<3.0",
-    "sqlmodel>=0.0.14,<0.0.16",
-    "python-dotenv>=1.0,<2.0",
-    "PyJWT>=2.8,<3.0",
-    "rich>=13.6,<14.0",
+    "PySide6>=6.7,<7.0",
     "httpx>=0.25,<0.28",
-    "aiofiles>=23.2,<24.0"
+    "selectolax>=0.3.17,<0.4.0",
+    "beautifulsoup4>=4.12,<4.14",
+    "tenacity>=8.2,<9.0",
+    "rich>=13.6,<14.0",
+    "python-slugify>=8.0,<9.0",
+    "aiofiles>=23.2,<24.0",
+    "pydantic>=2.6,<3.0"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3,<9.0",
-    "pytest-asyncio>=0.23,<0.24",
     "coverage>=7.6,<8.0",
-    "ruff>=0.6,<0.7",
-    "mypy>=1.10,<1.11"
+    "ruff>=0.6,<0.7"
 ]
 
-[project.scripts]
-tcg = "tcg.cli.main:app"
+[project.gui-scripts]
+tcg-desktop = "app.main:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]

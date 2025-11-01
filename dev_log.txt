@@ -61,10 +61,39 @@
 	- (done) Create and activate Python 3.11+ virtual environment.
 	- (done) Install dependencies via `pip install -e .[dev]`.
 	- (done) Run `pytest` to validate scaffold.
-	- Extend ProblemGenerator to use configuration for deterministic workflows.
-	- Add CLI option for custom output directory from settings.
-	- Implement FastAPI integration test for placeholder endpoint.
-	- Plan Sprint 2 features: AI enhancer stub, deterministic RNG module, ZIP exporter.
+	- Build PySide6 desktop UI with prompt input, status log, and trigger button.
+	- Implement scraping orchestrator covering LeetCode, Codeforces, CodeChef, GFG, AtCoder.
+	- Generate ZIP bundles with `.in`/`.out` files and expose Save dialog.
+	- Integrate AI enhancement layer after MVP delivery.
+[2025-11-01 01:44] NOTE: Current orchestrator uses placeholder data; real scrapers for LeetCode/Codeforces/CodeChef/GFG/AtCoder remain TODO.
+[2025-11-01 01:45] Beginning implementation of real scraping architecture starting with Codeforces adapter.
+[2025-11-01 01:46] Created src/app/services/scrapers/ package for site-specific adapters.
+[2025-11-01 01:47] Added scrapers/__init__.py placeholder.
+[2025-11-01 01:48] Added src/app/services/models.py for shared dataclasses (ScrapeQuery, ScrapedProblem, Testcase).
+[2025-11-01 01:49] Added scrapers/base.py defining Scraper interface and result wrapper.
+[2025-11-01 01:50] Added scrapers/codeforces.py with live Codeforces sample-scraper implementation.
+[2025-11-01 01:51] Refactored orchestrator to use modular scrapers and fallback placeholders.
+[2025-11-01 01:52] Updated tests/test_orchestrator.py to inject fake scraper and avoid network dependency.
+[2025-11-01 01:53] Marked Testcase dataclass as non-test and re-ran pytest (passes cleanly).
+[2025-11-01 01:54] Updated README.md to note Codeforces adapter availability and remaining TODO scrapers.
+[2025-11-01 01:55] Planning additional scraper stubs starting with LeetCode adapter scaffold.
+[2025-11-01 01:56] Added scrapers/leetcode.py stub (raises ScraperError until implemented) and registered in orchestrator default list.
+[2025-11-01 01:57] Pytest confirmed passing after LeetCode stub integration.
+[2025-11-01 01:58] README updated to note LeetCode stub status and remaining scrapers.
+[2025-11-01 01:59] Adding CodeChef scraper stub to extend adapter scaffold.
+[2025-11-01 02:00] Added scrapers/codechef.py stub raising ScraperError; registered with orchestrator defaults.
+[2025-11-01 02:01] Pytest remains green after CodeChef stub integration.
+[2025-11-01 02:02] README updated to mention CodeChef stub alongside LeetCode.
+[2025-11-01 02:03] Proceeding with next goals: add GeeksforGeeks and AtCoder scraper stubs, improve UI logging, and refine orchestrator progress callbacks.
+[2025-11-01 02:04] Added scrapers/geeksforgeeks.py stub raising ScraperError.
+[2025-11-01 02:05] Added scrapers/atcoder.py stub raising ScraperError.
+[2025-11-01 02:06] Extended orchestrator default scrapers with GeeksforGeeks and AtCoder.
+[2025-11-01 02:07] Enhanced ScrapeOrchestrator to accept log_callback and emit per-scraper progress/fallback messages.
+[2025-11-01 02:08] Updated ScrapeWorker to forward log signal into orchestrator pipeline.
+[2025-11-01 02:09] Pytest remains green after logging enhancements and new scrapers.
+[2025-11-01 02:10] README updated to reflect new scraper stubs and UI logging improvements.
+[2025-11-01 02:11] Added fallback logging pytest to assert placeholder messaging when scrapers return no data.
+[2025-11-01 02:12] Pytest suite passes with new logging test (2 tests total).
 [2025-11-01 01:09] Initiating Python virtual environment creation (.venv).
 [2025-11-01 01:10] Created virtual environment at .venv/.
 [2025-11-01 01:11] Installing project dependencies using .venv/bin/pip install -e .[dev].
@@ -75,3 +104,28 @@
 [2025-11-01 01:16] Updated pyproject.toml with pytest pythonpath=src to resolve import errors.
 [2025-11-01 01:17] Re-running pytest after configuration update.
 [2025-11-01 01:18] Pytest succeeded (1 test); noted pytest collection warning for TestcaseSpec naming.
+[2025-11-01 01:19] Received clarification: pivot to a simple desktop app that takes prompts, scrapes questions, and outputs ZIPs with .in/.out testcases.
+[2025-11-01 01:20] New directives: remove previous CLI/API scaffold, target desktop MVP; scrape LeetCode/Codeforces/CodeChef/GeeksforGeeks/AtCoder (and more); defer AI integration until after MVP.
+[2025-11-01 01:21] Pruning legacy directories (src/tcg, config, tests) to simplify for desktop app scope.
+[2025-11-01 01:22] Removed src/tcg, config, and tests directories.
+[2025-11-01 01:23] Updated pyproject.toml for desktop app: new dependencies (PySide6, scraping libs) and GUI entry point.
+[2025-11-01 01:24] Updated README.md to reflect desktop scraper app scope, architecture, and roadmap.
+[2025-11-01 01:25] Initializing new src/app/ directory for desktop application modules.
+[2025-11-01 01:26] Created src/app/ directory.
+[2025-11-01 01:27] Added src/app/__init__.py placeholder.
+[2025-11-01 01:28] Reinstalling dependencies to pick up new desktop requirements.
+[2025-11-01 01:29] Reinstalled editable package with PySide6, selectolax, beautifulsoup4, python-slugify, tenacity.
+[2025-11-01 01:30] Implementing desktop entrypoint and UI scaffolding.
+[2025-11-01 01:31] Created src/app/ui/ directory.
+[2025-11-01 01:32] Added src/app/ui/__init__.py placeholder.
+[2025-11-01 01:33] Added src/app/main.py entrypoint to launch PySide6 MainWindow.
+[2025-11-01 01:34] Created src/app/services/ directory for orchestration logic.
+[2025-11-01 01:35] Added src/app/services/__init__.py placeholder.
+[2025-11-01 01:36] Added src/app/services/orchestrator.py with placeholder scraping pipeline and ZIP exporter.
+[2025-11-01 01:37] Added src/app/ui/main_window.py with PySide6 UI and threaded worker wiring.
+[2025-11-01 01:38] Running pytest to ensure package imports remain valid post-refactor.
+[2025-11-01 01:39] Pytest exited with code 5 (no tests collected); adding smoke test for orchestrator output.
+[2025-11-01 01:40] Recreated tests/ directory for new smoke tests.
+[2025-11-01 01:41] Added tests/test_orchestrator.py smoke test verifying ZIP contents.
+[2025-11-01 01:42] Re-running pytest after adding smoke test.
+[2025-11-01 01:43] Pytest succeeded (1 test) after addressing UTC timestamp warning.

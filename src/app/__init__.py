@@ -1,0 +1,1 @@
+"""Desktop problem scraper application."""
