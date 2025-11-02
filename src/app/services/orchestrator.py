@@ -38,6 +38,7 @@ class ScrapeOrchestrator:
         prompt: str,
         *,
         log_callback: Optional[Callable[[str], None]] = None,
+        include_sites: Optional[List[str]] = None,
     ) -> Path:
         logger = log_callback or self._noop_logger
 
@@ -53,7 +54,16 @@ class ScrapeOrchestrator:
         if query.topics:
             logger(f"Topic hints: {', '.join(query.topics)}")
 
-        problems = self._collect_problems(query, logger)
+        # Optionally filter scrapers by site name
+        scrapers: List[Scraper] = self.scrapers
+        if include_sites:
+            wanted = {s.lower() for s in include_sites}
+            scrapers = [s for s in self.scrapers if s.site_name.lower() in wanted]
+            if not scrapers:
+                logger("No matching scrapers for requested platforms; using all available scrapers.")
+                scrapers = self.scrapers
+
+        problems = self._collect_problems(scrapers, query, logger)
         if not problems:
             logger("No live sources yielded results; falling back to placeholder generator.")
             problems = self._generate_placeholder(query)
@@ -64,23 +74,41 @@ class ScrapeOrchestrator:
 
     def _collect_problems(
         self,
+        scrapers: List[Scraper],
         query: ScrapeQuery,
         logger: Callable[[str], None],
     ) -> List[ScrapedProblem]:
         collected: List[ScrapedProblem] = []
-        for scraper in self.scrapers:
+        for scraper in scrapers:
             remaining = query.count - len(collected)
             if remaining <= 0:
                 break
             logger(f"Querying {scraper.site_name} for up to {remaining} problem(s)...")
             try:
-                result = scraper.fetch(query, remaining)
-                collected.extend(result.problems)
-                logger(
-                    f"{scraper.site_name} returned {len(result.problems)} problem(s)."
-                )
+                import signal
+                def timeout_handler(signum, frame):
+                    raise TimeoutError(f"{scraper.site_name} timed out")
+                
+                # Set 15-second timeout per scraper
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(15)
+                
+                try:
+                    result = scraper.fetch(query, remaining)
+                    collected.extend(result.problems)
+                    logger(
+                        f"{scraper.site_name} returned {len(result.problems)} problem(s)."
+                    )
+                finally:
+                    signal.alarm(0)
+            except TimeoutError as e:
+                logger(f"{scraper.site_name} timed out - skipping.")
+                continue
             except ScraperError:
                 logger(f"{scraper.site_name} failed to provide data.")
+                continue
+            except Exception as e:
+                logger(f"{scraper.site_name} error: {str(e)[:100]}")
                 continue
         return collected[: query.count]
 

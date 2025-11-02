@@ -19,8 +19,14 @@ dependencies = [
     "rich>=13.6,<14.0",
     "python-slugify>=8.0,<9.0",
     "aiofiles>=23.2,<24.0",
-    "pydantic>=2.6,<3.0"
+    "pydantic>=2.6,<3.0",
+    "fastapi>=0.115,<0.116",
+    "uvicorn[standard]>=0.30,<0.32",
+    "jinja2>=3.1,<4.0"
 ]
+
+# Required by FastAPI for HTML form parsing
+python-multipart = ">=0.0.9,<0.0.11"
 
 [project.optional-dependencies]
 dev = [
@@ -32,8 +38,14 @@ dev = [
 [project.gui-scripts]
 tcg-desktop = "app.main:run"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[project.scripts]
+tcg-web = "webapp.main:run"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools]
+packages = { find = { where = ["src"], include = ["app*", "webapp*"], exclude = ["tests*"] } }
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

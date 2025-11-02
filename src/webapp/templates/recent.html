@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recent Bundles • Problem Scraper</title>
+  <style>
+    :root { --bg:#0f172a; --panel:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 1000px; margin: 30px auto; padding: 0 16px; }
+    .card { background: var(--panel); border-radius: 12px; padding: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.05); }
+    .muted { color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    a.btn { color: #08131c; background: var(--accent); padding: 8px 12px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+    .row { display:flex; align-items:center; justify-content: space-between; }
+    code { background:#0b1220; padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Recent Bundles</h2>
+  <a class="muted" href="{{ request.url_for('index') }}">← Back</a>
+      </div>
+      {% if items and items|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%">When</th>
+            <th style="width:40%">Job</th>
+            <th style="width:25%">Archive</th>
+            <th style="width:15%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+          <tr>
+            <td class="muted">{{ it.when }}</td>
+            <td>
+              <a href="{{ request.url_for('job_page', job_id=it.id) }}">View logs</a>
+              <div class="muted" style="font-size:12px; margin-top:2px;">Job ID: <code>{{ it.id }}</code></div>
+            </td>
+            <td><code>{{ it.name }}</code></td>
+            <td><a class="btn" href="{{ request.url_for('download', job_id=it.id) }}">Download</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="muted">No recent bundles yet. Submit a job from the <a href="/">home page</a>.</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

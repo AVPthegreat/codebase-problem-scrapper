@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Problem Scraper Web</title>
+  <style>
+    :root { --bg:#0f172a; --panel:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 980px; margin: 40px auto; padding: 0 16px; }
+    .card { background: var(--panel); border-radius: 12px; padding: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.05); }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    p.muted { color: var(--muted); margin-top: 0; }
+    textarea { width: 100%; min-height: 140px; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: #0b1220; color: var(--text); outline: none; resize: vertical; }
+    .row { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 14px; }
+    .btn { appearance: none; border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 600; color: #08131c; background: var(--accent); cursor: pointer; }
+    .btn:disabled { background: #14532d; cursor: not-allowed; color: #0f172a; }
+    .note { font-size: 12px; color: var(--muted); }
+    .footer { margin-top: 18px; font-size: 12px; color: var(--muted); text-align: center; }
+    fieldset { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; }
+    legend { padding: 0 8px; color: var(--muted); font-size: 12px; }
+    .options-grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 8px 14px; }
+    .options-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 8px 14px; }
+    .progress { height: 10px; width: 100%; background: #0b1220; border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .progress > span { display: block; height: 100%; background: var(--accent); width: 0%; transition: width .3s ease; }
+    pre.logs { white-space: pre-wrap; background: #0b1220; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); max-height: 300px; overflow: auto; }
+    .problems { margin-top: 12px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .problem { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; background: #0b1220; }
+    .problem h4 { margin: 0 0 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Problem Scraper</h1>
+      <p class="muted">Generate a testcases ZIP from platforms like Codeforces, LeetCode, CodeChef, GeeksforGeeks, AtCoder.</p>
+      <div>
+        <label for="prompt">Prompt</label>
+        <textarea id="prompt" name="prompt" placeholder="{{ placeholder }}" required></textarea>
+
+        <div style="margin-top:12px; display:grid; gap:12px;">
+          <fieldset>
+            <legend>Platforms (choose any)</legend>
+            <div class="options-grid">
+              <label><input type="checkbox" name="platforms" value="Codeforces"> Codeforces</label>
+              <label><input type="checkbox" name="platforms" value="LeetCode"> LeetCode</label>
+              <label><input type="checkbox" name="platforms" value="CodeChef"> CodeChef</label>
+              <label><input type="checkbox" name="platforms" value="GeeksforGeeks"> GeeksforGeeks</label>
+            </div>
+            <div style="margin-top:8px;">
+              <label style="color:var(--muted);"><input type="checkbox" id="placeholderMode" name="placeholderMode"> Use placeholder mode (instant, for testing)</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Difficulty</legend>
+            <div class="options-grid-3">
+              <label><input type="radio" name="difficulty" value="Easy"> Easy</label>
+              <label><input type="radio" name="difficulty" value="Medium"> Medium</label>
+              <label><input type="radio" name="difficulty" value="Hard"> Hard</label>
+            </div>
+          </fieldset>
+
+          <div class="row">
+            <button id="startBtn" class="btn" type="button">Start</button>
+            <a href="{{ request.url_for('recent') }}" class="note" style="text-decoration:underline;">Recent Bundles</a>
+          </div>
+
+          <div id="statusBox" style="display:none;">
+            <div class="row" style="margin-top:8px;">
+              <div class="note">Progress: <span id="pct">0%</span></div>
+              <div class="note">Now: <span id="now">—</span></div>
+            </div>
+            <div class="progress" style="margin-top:8px;"><span id="bar"></span></div>
+            <h3 style="margin-top:12px;">Logs</h3>
+            <pre class="logs" id="logs">Waiting...</pre>
+          </div>
+
+          <div id="problemsBox" style="display:none;">
+            <h3>Problems</h3>
+            <div id="problems" class="problems"></div>
+            <div class="row">
+              <div></div>
+              <button id="zipBtn" class="btn" type="button">Create ZIP of Accepted</button>
+            </div>
+            <div id="zipLink" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">Runs locally in your browser · No data leaves your machine</div>
+  </div>
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const logsEl = document.getElementById('logs');
+    const statusBox = document.getElementById('statusBox');
+    const pctEl = document.getElementById('pct');
+    const barEl = document.getElementById('bar');
+    const nowEl = document.getElementById('now');
+    const problemsBox = document.getElementById('problemsBox');
+    const problemsEl = document.getElementById('problems');
+    const zipBtn = document.getElementById('zipBtn');
+    const zipLink = document.getElementById('zipLink');
+
+    let currentJob = null;
+    let pollTimer = null;
+
+    function getFormValues() {
+      const prompt = document.getElementById('prompt').value.trim();
+      const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(i => i.value);
+      const diffEl = document.querySelector('input[name="difficulty"]:checked');
+      const difficulty = diffEl ? diffEl.value : null;
+      const placeholderMode = document.getElementById('placeholderMode').checked;
+      return { prompt, platforms, difficulty, placeholderMode };
+    }
+
+    function setProgress(n, label) {
+      const pct = Math.max(0, Math.min(100, Math.round(n)));
+      pctEl.textContent = pct + '%';
+      barEl.style.width = pct + '%';
+      nowEl.textContent = label || '—';
+    }
+
+    function estimateProgress(status, logs) {
+      if (status === 'queued') return 0;
+      if (!Array.isArray(logs)) logs = [];
+      const text = logs.join('\n').toLowerCase();
+      let p = 5;
+      if (text.includes('parsing prompt')) p = 10;
+      if (text.includes('looking for')) p = 15;
+      const siteStarts = (text.match(/querying\s+[a-z]+/g) || []).length;
+      p = Math.max(p, 20 + siteStarts * 15);
+      const siteReturns = (text.match(/returned\s+\d+\s+problem/gi) || []).length;
+      p = Math.max(p, 25 + siteReturns * 15);
+      if (text.includes('falling back to placeholder')) p = Math.max(p, 70);
+      if (text.includes('bundled')) p = 100;
+      if (status === 'done') p = 100;
+      if (status === 'error') p = 100;
+      return Math.min(100, p);
+    }
+
+    async function submitJob() {
+      const payload = getFormValues();
+      if (!payload.prompt) { alert('Please enter a prompt.'); return; }
+      startBtn.disabled = true;
+      statusBox.style.display = '';
+      problemsBox.style.display = 'none';
+      logsEl.textContent = 'Queued...';
+      setProgress(0, 'Queued');
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error('Submit error:', errText);
+          throw new Error('Submit failed: ' + res.status);
+        }
+        const data = await res.json();
+        currentJob = data.job_id;
+        pollStatus();
+      } catch (e) {
+        console.error('Submit exception:', e);
+        alert('Failed to start job: ' + e.message);
+        startBtn.disabled = false;
+        statusBox.style.display = 'none';
+      }
+    }
+
+    async function pollStatus() {
+      clearTimeout(pollTimer);
+      if (!currentJob) return;
+      try {
+        const res = await fetch(`/jobs/${currentJob}/status`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          logsEl.textContent = (data.logs || []).join('\n');
+          const last = (data.logs || []).slice(-1)[0] || '';
+          const pct = estimateProgress(data.status, data.logs);
+          setProgress(pct, last || data.status);
+          if (data.status === 'done') {
+            await loadProblems();
+            startBtn.disabled = false;
+            return; // stop polling
+          }
+          if (data.status === 'error') {
+            logsEl.textContent += '\n\nERROR: ' + (data.error || 'Unknown error');
+            startBtn.disabled = false;
+            return; // stop polling
+          }
+        }
+      } catch (e) {
+        console.error('Poll error:', e);
+      }
+      pollTimer = setTimeout(pollStatus, 1000);
+    }
+
+    async function loadProblems() {
+      if (!currentJob) return;
+      const res = await fetch(`/jobs/${currentJob}/problems`, { cache: 'no-store' });
+      if (!res.ok) { problemsBox.style.display = 'none'; return; }
+      const data = await res.json();
+      const problems = data.problems || [];
+      if (problems.length === 0) { problemsBox.style.display = 'none'; return; }
+      problemsBox.style.display = '';
+      problemsEl.innerHTML = problems.map(p => `
+        <div class="problem">
+          <label style="display:flex; gap:10px; align-items:flex-start;">
+            <input type="checkbox" class="pick" value="${p.id}" checked>
+            <div>
+              <h4>${p.name}</h4>
+              <div class="note" style="white-space:pre-wrap;">${(p.description || '').replace(/[&<>]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]))}</div>
+            </div>
+          </label>
+        </div>
+      `).join('');
+    }
+
+    async function createSelectedZip() {
+      if (!currentJob) return;
+      const ids = Array.from(document.querySelectorAll('.pick:checked')).map(i => i.value);
+      if (ids.length === 0) { alert('Select at least one problem'); return; }
+      zipBtn.disabled = true; zipBtn.textContent = 'Creating...'; zipLink.innerHTML = '';
+      try {
+        const res = await fetch(`/jobs/${currentJob}/zip`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+        if (!res.ok) throw new Error('zip failed');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        zipLink.innerHTML = `<a class="btn" href="${url}" download="${currentJob}-selected.zip">Download Selected ZIP</a>`;
+      } catch (e) {
+        alert('Failed to build ZIP');
+      } finally {
+        zipBtn.disabled = false; zipBtn.textContent = 'Create ZIP of Accepted';
+      }
+    }
+
+    startBtn.addEventListener('click', submitJob);
+    zipBtn.addEventListener('click', createSelectedZip);
+  </script>
+</body>
+</html>

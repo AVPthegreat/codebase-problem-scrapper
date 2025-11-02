@@ -52,7 +52,7 @@ class CodeforcesScraper(Scraper):
     site_name = "Codeforces"
 
     def __init__(self, client: Optional[httpx.Client] = None) -> None:
-        self._client = client or httpx.Client(headers={"User-Agent": "ProblemScraper/0.1"}, timeout=20.0)
+        self._client = client or httpx.Client(headers={"User-Agent": "ProblemScraper/0.1"}, timeout=10.0)
         self._problem_cache: Dict[Tuple[int, str], _ProblemInfo] = {}
 
     def fetch(self, query: ScrapeQuery, limit: int) -> ScraperResult:

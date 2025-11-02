@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job {{ job_id }} • Problem Scraper</title>
+  <style>
+    :root { --bg:#0f172a; --panel:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 1000px; margin: 30px auto; padding: 0 16px; }
+    .card { background: var(--panel); border-radius: 12px; padding: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.05); }
+    .muted { color: var(--muted); }
+    .row { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+    pre { white-space: pre-wrap; background: #0b1220; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); max-height: 420px; overflow: auto; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 12px; background: #0b1220; border: 1px solid rgba(255,255,255,0.08); }
+    a.btn { color: #08131c; background: var(--accent); padding: 10px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body data-job-id="{{ job_id }}" data-status-url="{{ request.url_for('job_status', job_id=job_id) }}">
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Job <code>{{ job_id }}</code></h2>
+        <div class="muted">{{ created }}</div>
+      </div>
+      <div class="muted" style="margin-top:6px;">Platform: <span class="pill">{{ platform }}</span> · Difficulty: <span class="pill">{{ difficulty }}</span></div>
+      <h3>Prompt</h3>
+      <pre>{{ prompt }}</pre>
+      <h3>Logs</h3>
+      <pre id="logs">Waiting for updates...</pre>
+      <div id="actions" style="margin-top:12px;"></div>
+      <div class="row" style="margin-top:14px;">
+        <a class="muted" href="{{ request.url_for('index') }}">← Back</a>
+        <a class="muted" href="{{ request.url_for('recent') }}">Recent Bundles</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    const jobId = document.body.dataset.jobId;
+    const logsEl = document.getElementById('logs');
+  const actionsEl = document.getElementById('actions');
+  const statusUrl = document.body.dataset.statusUrl;
+
+    async function poll() {
+      try {
+  const res = await fetch(statusUrl, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        logsEl.textContent = (data.logs || []).join('\n');
+        if (data.status === 'done' && data.download_url) {
+          actionsEl.innerHTML = `<a class="btn" href="${data.download_url}">Download ZIP</a>`;
+        } else if (data.status === 'error') {
+          actionsEl.innerHTML = `<span class="pill" style="border-color:#ef4444;color:#ef4444">Error</span>`;
+        } else if (data.status === 'running') {
+          actionsEl.innerHTML = `<span class="pill">Running...</span>`;
+        } else {
+          actionsEl.innerHTML = `<span class="pill">Queued</span>`;
+        }
+      } catch (e) {
+        // Ignore transient errors during polling
+      } finally {
+        setTimeout(poll, 1000);
+      }
+    }
+    poll();
+  </script>
+</body>
+</html>
