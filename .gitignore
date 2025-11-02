@@ -14,33 +14,29 @@ build/
 
 # Virtual environments
 .env
-.venv
+.venv/
+.venv-py312/
 venv/
 ENV/
 env/
 
-# Testing
+# Testing / coverage
 .pytest_cache/
 .coverage
 coverage/
 htmlcov/
+tmp_out/
+output/
+logs/
 
 # Type checkers
 .mypy_cache/
 .pyre/
 .pytype/
 
-# Editors
+# Editors / IDE
 yarn.lock
 *.swp
 .idea/
 .vscode/
 .DS_Store
-
-# Local application state
-output/
-logs/
-
-# Misc
-*.sqlite3
-*.db
