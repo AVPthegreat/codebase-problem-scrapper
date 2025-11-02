@@ -47,8 +47,8 @@ SUPERVISOR_STARTED = False
 
 
 def _append_log(job: Job, message: str) -> None:
-    with JOBS_LOCK:
-        job.logs.append(message)
+    # List append is thread-safe in CPython, no lock needed
+    job.logs.append(message)
 
 
 def _compose_prompt(prompt: str, platform: str, difficulty: str) -> str:
@@ -71,6 +71,16 @@ def _run_job(job_id: str) -> None:
         job.status = "running"
         placeholder_mode = (job.error == "placeholder")
         job.error = None  # clear the flag
+    
+    timeout_triggered = False
+    def mark_timeout():
+        nonlocal timeout_triggered
+        timeout_triggered = True
+    
+    timer = threading.Timer(120.0, mark_timeout)  # 2 minute timeout
+    timer.daemon = True
+    timer.start()
+    
     try:
         print(f"📁 Creating temp directory for job {job_id}")
         out_dir = Path(tempfile.mkdtemp(prefix="tcg-web-"))
@@ -90,34 +100,30 @@ def _run_job(job_id: str) -> None:
             else:
                 _append_log(job, "Using all available scrapers (this may take time).")
         
-        print(f"⏰ Setting 2-minute timeout for job {job_id}")
-        import signal
-        def timeout_handler(signum, frame):
-            raise TimeoutError("Job timed out after 2 minutes")
+        print(f"🚀 Calling generate_bundle for job {job_id}")
+        zip_path = orch.generate_bundle(
+            final_prompt,
+            log_callback=lambda m: _append_log(job, m),
+            include_sites=include_sites or None,
+        )
+        print(f"✅ Job {job_id} bundle generated: {zip_path}", flush=True)
         
-        # Set 2-minute timeout for the entire job
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(120)
+        timer.cancel()  # Cancel timeout if completed successfully
+        print(f"⏰ Timer cancelled for job {job_id}", flush=True)
         
-        try:
-            print(f"🚀 Calling generate_bundle for job {job_id}")
-            zip_path = orch.generate_bundle(
-                final_prompt,
-                log_callback=lambda m: _append_log(job, m),
-                include_sites=include_sites or None,
-            )
-            print(f"✅ Job {job_id} bundle generated: {zip_path}")
-        finally:
-            signal.alarm(0)  # Cancel the alarm
+        if timeout_triggered:
+            raise TimeoutError("Job timed out")
         
+        print(f"📝 Updating job status to done for {job_id}", flush=True)
         with JOBS_LOCK:
             job.zip_path = zip_path
             job.status = "done"
             RECENTS.appendleft(job.id)
             _append_log(job, f"Bundle ready: {zip_path}")
-        print(f"🎉 Job {job_id} completed successfully")
+        print(f"🎉 Job {job_id} completed successfully", flush=True)
     except TimeoutError as exc:
         print(f"⏱️ Job {job_id} timed out")
+        timer.cancel()
         with JOBS_LOCK:
             job.status = "error"
             job.error = "Job timed out - try selecting fewer platforms or use placeholder mode"
@@ -127,6 +133,7 @@ def _run_job(job_id: str) -> None:
         tb = traceback.format_exc()
         print(f"❌ Job {job_id} failed with error: {exc}")
         print(tb)
+        timer.cancel()
         with JOBS_LOCK:
             job.status = "error"
             job.error = str(exc)

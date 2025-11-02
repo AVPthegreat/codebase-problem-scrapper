@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tcg-desktop"
+name = "tcg-web"
 version = "0.1.0"
 description = "Desktop tool for scraping coding problems and packaging testcases"
 readme = "README.md"
@@ -11,7 +11,6 @@ requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [{ name = "Test Case Generator Team" }]
 dependencies = [
-    "PySide6>=6.7,<7.0",
     "httpx>=0.25,<0.28",
     "selectolax>=0.3.17,<0.4.0",
     "beautifulsoup4>=4.12,<4.14",
@@ -22,11 +21,9 @@ dependencies = [
     "pydantic>=2.6,<3.0",
     "fastapi>=0.115,<0.116",
     "uvicorn[standard]>=0.30,<0.32",
-    "jinja2>=3.1,<4.0"
+    "jinja2>=3.1,<4.0",
+    "python-multipart>=0.0.9,<0.0.11"
 ]
-
-# Required by FastAPI for HTML form parsing
-python-multipart = ">=0.0.9,<0.0.11"
 
 [project.optional-dependencies]
 dev = [
@@ -35,8 +32,7 @@ dev = [
     "ruff>=0.6,<0.7"
 ]
 
-[project.gui-scripts]
-tcg-desktop = "app.main:run"
+## GUI scripts removed; web entry point defined below
 
 [project.scripts]
 tcg-web = "webapp.main:run"

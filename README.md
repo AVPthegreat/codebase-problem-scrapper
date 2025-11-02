@@ -1,50 +1,31 @@
-# Coding Problem Scraper Desktop App
+# Coding Problem Scraper (Web)
 
-A lightweight desktop utility that scrapes coding problems from competitive programming sites using a user prompt, generates deterministic `.in`/`.out` testcases, and packages them into ZIP archives for download.
+A simple FastAPI web app that scrapes coding problems from popular platforms based on your prompt, generates `.in`/`.out` testcases, and packages everything into a downloadable ZIP. Includes a fast “placeholder mode” for instant results when testing the flow.
 
-## Features (MVP)
-- Desktop GUI (PySide6) accepting prompts such as “10 medium sorting problems with I/O specs.”
-- Scrapes competitive programming platforms (Codeforces implemented; LeetCode, CodeChef, GeeksforGeeks, and AtCoder stubs awaiting full support).
-- Generates structured folders with problem statements and `.in`/`.out` testcase files.
-- Exports all generated problems as a ZIP archive ready for online judge upload.
+## Features
+- Single-page web UI: enter prompt, pick platforms and difficulty, see live logs and progress.
+- Curate results: accept/reject problems, then download a filtered ZIP.
+- Live sources: Codeforces implemented; LeetCode, CodeChef, GeeksforGeeks, and AtCoder supported to varying degrees.
+- Placeholder mode: instant synthetic problems for quick validation.
 
-## Architecture Overview
-```
-PySide6 Desktop UI
-    ├── Prompt input + status log
-    ├── Generation worker (async scraping + parsing)
-    └── ZIP exporter & file chooser
+## Quick start
+1. Ensure Python 3.11+ is installed.
+2. Create and activate a virtualenv.
+3. Install deps:
+   - Editable install with dev extras: `pip install -e '.[dev]'`
+4. Run the web app locally:
+   - `python scripts/run_web.py`
+5. Open http://127.0.0.1:8000 and submit a prompt.
 
-Scraper Engine
-    ├── Site adapters (LeetCode, Codeforces, CodeChef, GFG, AtCoder, ...)
-    ├── Rate limiting + retry (tenacity)
-    ├── HTML parsing (selectolax / BeautifulSoup)
-    └── Testcase formatter and ZIP packager
-```
+## Project layout
+- `src/app/services/` – Core orchestration and scrapers
+- `src/webapp/` – FastAPI app and Jinja templates (index, job, recent)
+- `scripts/run_web.py` – Local runner (uvicorn)
+- `tests/` – Smoke tests and a few live scraper checks
 
-## Getting Started
-1. **Environment:** Ensure Python 3.11+ is available. Create and activate a virtual environment.
-2. **Install:** `pip install -e '.[dev]'`
-3. **Run desktop app:** `tcg-desktop`
-4. **Prompt:** Describe the problems you need; wait for scraping and ZIP creation.
-5. **Download:** Save the generated ZIP to your desired location.
-
-## Roadmap Snapshot
-- Sprint 0: Desktop scaffold, scraper interfaces, ZIP exporter.
-- Sprint 1: Implement site adapters (LeetCode, Codeforces, CodeChef).
-- Current progress: Codeforces adapter implemented with sample test extraction; LeetCode, CodeChef, GeeksforGeeks, and AtCoder stubs in place pending auth/TOS work.
-- UI now streams per-scraper progress logs during generation.
-- Sprint 2: Add remaining high-priority sources (GeeksforGeeks, AtCoder, etc.).
-- Sprint 3: Integrate AI rewriting/validation layer.
-- Sprint 4: Add scheduling, caching, and advanced filtering.
+## Notes
+- Be mindful of platform ToS when scraping. Use placeholder mode for demos.
+- If you expose this beyond localhost, consider adding auth and persistent storage.
 
 ## Contributing
-- Run `ruff` and `pytest` before pushing changes.
-- Document new site adapters and scraping considerations in future `docs/`.
-
-## Licensing & Provenance
-- Scraped content is for personal preparation only; respect each platform’s terms of service.
-- Keep provenance logs per problem for future review.
-
----
-Status: Desktop MVP under development.
+- Run `pytest` before pushing. Keep changes minimal and focused.
