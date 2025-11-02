@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Case Converter</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 30px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .nav-links {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #eee;
+    }
+    .nav-links a {
+      color: #667eea;
+      text-decoration: none;
+      margin-right: 20px;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .test-cases {
+      margin-top: 20px;
+    }
+    .test-case {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      position: relative;
+      border: 2px solid #e9ecef;
+    }
+    .test-case-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .test-case-number {
+      font-weight: 600;
+      color: #667eea;
+      font-size: 16px;
+    }
+    .remove-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .remove-btn:hover {
+      background: #c82333;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .textarea-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .add-test-case {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .add-test-case:hover {
+      background: #218838;
+    }
+    .convert-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .convert-btn:hover {
+      opacity: 0.9;
+    }
+    .convert-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .example {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .example-title {
+      font-weight: 600;
+      color: #856404;
+      margin-bottom: 8px;
+    }
+    .example code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-links">
+      <a href="/">← Back to Scraper</a>
+      <a href="/recent">Recent Jobs</a>
+    </div>
+
+    <h1>🔧 Test Case Converter</h1>
+    <p class="subtitle">Convert your test cases to .in and .out files instantly</p>
+
+    <div class="example">
+      <div class="example-title">💡 Quick Example:</div>
+      Enter a problem name and add test cases below. Each test case will be converted to numbered files 
+      (<code>1.in</code>, <code>1.out</code>, <code>2.in</code>, <code>2.out</code>, etc.) 
+      and packaged into a downloadable ZIP file.
+    </div>
+
+    <div class="form-group">
+      <label for="problemName">Problem Name</label>
+      <input 
+        type="text" 
+        id="problemName" 
+        placeholder="e.g., Two Sum, Maximum Subarray, Binary Search"
+        value="Problem"
+      />
+    </div>
+
+    <div class="test-cases" id="testCasesContainer">
+      <!-- Test cases will be added here dynamically -->
+    </div>
+
+    <button class="add-test-case" onclick="addTestCase()">
+      <span>➕</span> Add Test Case
+    </button>
+
+    <button class="convert-btn" onclick="convertTestCases()">
+      📥 Generate & Download ZIP
+    </button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    let testCaseCount = 0;
+
+    function addTestCase() {
+      testCaseCount++;
+      const container = document.getElementById('testCasesContainer');
+      
+      const testCaseDiv = document.createElement('div');
+      testCaseDiv.className = 'test-case';
+      testCaseDiv.id = `testcase-${testCaseCount}`;
+      
+      testCaseDiv.innerHTML = `
+        <div class="test-case-header">
+          <span class="test-case-number">Test Case #${testCaseCount}</span>
+          <button class="remove-btn" onclick="removeTestCase(${testCaseCount})">Remove</button>
+        </div>
+        <div class="form-group">
+          <label class="textarea-label" for="input-${testCaseCount}">Input (stdin):</label>
+          <textarea id="input-${testCaseCount}" placeholder="Enter input data here..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="textarea-label" for="output-${testCaseCount}">Expected Output (stdout):</label>
+          <textarea id="output-${testCaseCount}" placeholder="Enter expected output here..."></textarea>
+        </div>
+      `;
+      
+      container.appendChild(testCaseDiv);
+    }
+
+    function removeTestCase(id) {
+      const element = document.getElementById(`testcase-${id}`);
+      if (element) {
+        element.remove();
+      }
+    }
+
+    async function convertTestCases() {
+      const problemName = document.getElementById('problemName').value.trim();
+      const statusDiv = document.getElementById('status');
+      
+      if (!problemName) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '❌ Please enter a problem name';
+        return;
+      }
+
+      // Collect all test cases
+      const testCases = [];
+      const container = document.getElementById('testCasesContainer');
+      const testCaseDivs = container.querySelectorAll('.test-case');
+      
+      testCaseDivs.forEach((div) => {
+        const inputTextarea = div.querySelector('textarea[id^="input-"]');
+        const outputTextarea = div.querySelector('textarea[id^="output-"]');
+        
+        if (inputTextarea && outputTextarea) {
+          const input = inputTextarea.value;
+          const output = outputTextarea.value;
+          
+          if (input.trim() || output.trim()) {
+            testCases.push({ input, output });
+          }
+        }
+      });
+
+      if (testCases.length === 0) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '❌ Please add at least one test case with input or output';
+        return;
+      }
+
+      // Send request
+      statusDiv.className = 'status';
+      statusDiv.style.display = 'block';
+      statusDiv.textContent = '⏳ Converting test cases...';
+
+      try {
+        const response = await fetch('/api/convert', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            problem_name: problemName,
+            test_cases: testCases,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        // Download the file
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${problemName.replace(/\s+/g, '_')}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        statusDiv.className = 'status success';
+        statusDiv.textContent = `✅ Success! Downloaded ${testCases.length} test case(s) as ${problemName.replace(/\s+/g, '_')}.zip`;
+      } catch (error) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+      }
+    }
+
+    // Add initial test case on load
+    window.onload = function() {
+      addTestCase();
+      addTestCase();
+    };
+  </script>
+</body>
+</html>

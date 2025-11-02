@@ -17,6 +17,9 @@ import os
 import zipfile
 from pydantic import BaseModel
 
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from app.services.orchestrator import ScrapeOrchestrator
 
 app = FastAPI(title="Problem Scraper Web")
@@ -370,6 +373,52 @@ def recent(request: Request):
                     }
                 )
     return templates.TemplateResponse("recent.html", {"request": request, "items": items})
+
+
+@app.get("/converter", response_class=HTMLResponse)
+def converter_page(request: Request):
+    return templates.TemplateResponse("converter.html", {"request": request})
+
+
+class TestCasePayload(BaseModel):
+    problem_name: str
+    test_cases: List[Dict[str, str]]  # [{"input": "...", "output": "..."}]
+
+
+@app.post("/api/convert")
+def convert_test_cases(payload: TestCasePayload):
+    """
+    Convert test cases to .in/.out files and return a downloadable ZIP.
+    """
+    if not payload.test_cases:
+        return JSONResponse({"error": "No test cases provided"}, status_code=400)
+    
+    # Create temp directory
+    out_dir = Path(tempfile.mkdtemp(prefix="tcg-convert-"))
+    problem_dir = out_dir / payload.problem_name.replace(" ", "_")
+    problem_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write test cases
+    for idx, tc in enumerate(payload.test_cases, start=1):
+        input_text = tc.get("input", "").strip()
+        output_text = tc.get("output", "").strip()
+        
+        if input_text or output_text:
+            (problem_dir / f"{idx}.in").write_text(input_text + "\n", encoding="utf-8")
+            (problem_dir / f"{idx}.out").write_text(output_text + "\n", encoding="utf-8")
+    
+    # Create ZIP
+    zip_path = out_dir / f"{payload.problem_name.replace(' ', '_')}.zip"
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for file in problem_dir.rglob("*"):
+            if file.is_file():
+                zf.write(file, file.relative_to(out_dir))
+    
+    return FileResponse(
+        path=zip_path,
+        filename=zip_path.name,
+        media_type="application/zip"
+    )
 
 
 def run() -> None:
